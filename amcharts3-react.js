@@ -139,53 +139,65 @@
     var didUpdate = false;
 
     if (x !== y) {
-      var xType = getType(x);
-      var yType = getType(y);
+      // https://github.com/amcharts/amcharts3-react/issues/40
+      if (hasOwnKey(obj, key)) {
+        var xType = getType(x);
+        var yType = getType(y);
 
-      if (xType === yType) {
-        switch (xType) {
-        case "[object Array]":
-          if (updateArray(obj[key], x, y)) {
-            didUpdate = true;
-          }
-          break;
+        if (xType === yType) {
+          switch (xType) {
+          case "[object Array]":
+            // TODO hacky, remove this after the following bug is fixed:
+            //      Zendesk #28040
+            //      https://codepen.io/team/amcharts/pen/0d61f559cda74682c0ca55d9a24a0f77
+            //      https://www.amcharts.com/kbase/forcing-grouping-stock-chart-data-specific-periods/
+            if (key === "groupToPeriods") {
+              // TODO is the copy necessary ?
+              obj[key] = copy(y);
+              didUpdate = true;
 
-        case "[object Object]":
-          if (updateObject(obj[key], x, y)) {
-            didUpdate = true;
-          }
-          break;
+            } else {
+              if (updateArray(obj[key], x, y)) {
+                didUpdate = true;
+              }
+            }
+            break;
 
-        case "[object Date]":
-          if (x.getTime() !== y.getTime()) {
-            // TODO make this faster ?
-            obj[key] = copy(y);
-            didUpdate = true;
-          }
-          break;
+          case "[object Object]":
+            if (updateObject(obj[key], x, y)) {
+              didUpdate = true;
+            }
+            break;
 
-        case "[object Number]":
-          if (!isNumberEqual(x, y)) {
+          case "[object Date]":
+            if (x.getTime() !== y.getTime()) {
+              // TODO make this faster ?
+              obj[key] = copy(y);
+              didUpdate = true;
+            }
+            break;
+
+          case "[object Number]":
+            if (!isNumberEqual(x, y)) {
+              // TODO is the copy necessary ?
+              obj[key] = copy(y);
+              didUpdate = true;
+            }
+            break;
+
+          default:
             // TODO is the copy necessary ?
             obj[key] = copy(y);
             didUpdate = true;
+            break;
           }
-          break;
 
-        default:
-          if (x !== y) {
-            // TODO is the copy necessary ?
-            obj[key] = copy(y);
-            didUpdate = true;
-          }
-          break;
+        // TODO is this correct ?
+        } else {
+          // TODO make this faster ?
+          obj[key] = copy(y);
+          didUpdate = true;
         }
-
-      // TODO is this correct ?
-      } else {
-        // TODO make this faster ?
-        obj[key] = copy(y);
-        didUpdate = true;
       }
     }
 
@@ -238,7 +250,7 @@
 
   var id = 0;
 
-  AmCharts.React = React.createClass({
+  AmCharts.React = createReactClass({
     getInitialState: function () {
       return {
         id: "__AmCharts_React_" + (++id) + "__",
@@ -250,22 +262,20 @@
       // AmCharts mutates the config object, so we have to make a deep copy to prevent that
       var props = copy(this.props);
 
+      var chart = AmCharts.makeChart(this.state.id, props);
+
       this.setState({
-        chart: AmCharts.makeChart(this.state.id, props)
+        chart: chart
       });
     },
 
     // TODO is this correct ? should this use componentWillUpdate instead ?
     componentDidUpdate: function (oldProps) {
       var didUpdate = updateObject(this.state.chart, oldProps, this.props);
-      var keepState = this.props.keepState;
+
       // TODO make this faster
       if (didUpdate) {
-        if (keepState) {
-          this.state.chart.validateNow(true);
-        } else {
-          this.state.chart.validateData();
-        }
+        this.state.chart.validateNow(true);
       }
     },
 
@@ -276,7 +286,7 @@
     },
 
     render: function () {
-      return React.DOM.div({
+      return React.createElement("div", {
         id: this.state.id,
         style: {
           width: this.props.width || "100%",
