@@ -1,3 +1,5 @@
+console.warn("Version 2.0 is outdated. Please upgrade to version 3.0:\nhttps://github.com/amcharts/amcharts3-react/blob/master/documentation/Migrating%20to%203.0.md#migrating-to-amcharts-react-plugin-30");
+
 (function () {
   function getType(x) {
     // TODO make this faster ?
@@ -260,9 +262,9 @@
 
     componentDidMount: function () {
       // AmCharts mutates the config object, so we have to make a deep copy to prevent that
-      var props = copy(this.props.options);
+      var props = copy(this.props);
 
-      var chart = AmCharts.makeChart(this.state.id, props, this.props.delay);
+      var chart = AmCharts.makeChart(this.state.id, props);
 
       this.setState({
         chart: chart
@@ -271,16 +273,14 @@
 
     // TODO is this correct ? should this use componentWillUpdate instead ?
     componentDidUpdate: function (oldProps) {
-      if (this.state.chart) {
-        var didUpdate = updateObject(this.state.chart, oldProps, this.props.options);
+      var didUpdate = updateObject(this.state.chart, oldProps, this.props);
 
-        // TODO make this faster
-        if (didUpdate) {
-          if (keepState) {
-            this.state.chart.validateNow(true);
-          } else {
-            this.state.chart.validateData();
-          }
+      // TODO make this faster
+      if (didUpdate) {
+        if (keepState) {
+          this.state.chart.validateNow(true);
+        } else {
+          this.state.chart.validateData();
         }
       }
     },
@@ -294,7 +294,10 @@
     render: function () {
       return React.createElement("div", {
         id: this.state.id,
-        style: this.props.style
+        style: {
+          width: this.props.width || "100%",
+          height: this.props.height || "100%"
+        }
       });
     }
   });
