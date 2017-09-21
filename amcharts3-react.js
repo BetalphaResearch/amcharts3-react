@@ -260,9 +260,9 @@
 
     componentDidMount: function () {
       // AmCharts mutates the config object, so we have to make a deep copy to prevent that
-      var props = copy(this.props);
+      var props = copy(this.props.options);
 
-      var chart = AmCharts.makeChart(this.state.id, props);
+      var chart = AmCharts.makeChart(this.state.id, props, this.props.delay);
 
       this.setState({
         chart: chart
@@ -271,14 +271,16 @@
 
     // TODO is this correct ? should this use componentWillUpdate instead ?
     componentDidUpdate: function (oldProps) {
-      var didUpdate = updateObject(this.state.chart, oldProps, this.props);
-      var keepState = this.props.keepState || false;
-      // TODO make this faster
-      if (didUpdate) {
-        if (keepState) {
-          this.state.chart.validateNow(true);
-        } else {
-          this.state.chart.validateData();
+      if (this.state.chart) {
+        var didUpdate = updateObject(this.state.chart, oldProps, this.props.options);
+
+        // TODO make this faster
+        if (didUpdate) {
+          if (keepState) {
+            this.state.chart.validateNow(true);
+          } else {
+            this.state.chart.validateData();
+          }
         }
       }
     },
@@ -292,10 +294,7 @@
     render: function () {
       return React.createElement("div", {
         id: this.state.id,
-        style: {
-          width: this.props.width || "100%",
-          height: this.props.height || "100%"
-        }
+        style: this.props.style
       });
     }
   });
