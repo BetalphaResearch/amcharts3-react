@@ -274,7 +274,7 @@ console.warn("Version 2.0 is outdated. Please upgrade to version 3.0:\nhttps://g
     // TODO is this correct ? should this use componentWillUpdate instead ?
     componentDidUpdate: function (oldProps) {
       var didUpdate = updateObject(this.state.chart, oldProps, this.props);
-
+      var keepState = this.state.keepState;
       // TODO make this faster
       if (didUpdate) {
         if (keepState) {
