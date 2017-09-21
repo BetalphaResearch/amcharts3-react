@@ -1,4 +1,3 @@
-
 if (typeof window !== "undefined") {
   window.React = require("react");
   window.ReactDOM = require("react-dom");
