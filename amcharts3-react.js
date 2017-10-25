@@ -256,44 +256,42 @@ console.warn("Version 2.0 is outdated. Please upgrade to version 3.0:\nhttps://g
     getInitialState: function () {
       return {
         id: "__AmCharts_React_" + (++id) + "__",
-        chart: null
       };
     },
 
     componentDidMount: function () {
       // AmCharts mutates the config object, so we have to make a deep copy to prevent that
       var props = copy(this.props);
-
-      var chart = AmCharts.makeChart(this.state.id, props);
-
-      this.setState({
-        chart: chart
-      });
+      this.chart = AmCharts.makeChart(ReactDOM.findDOMNode(this.ref), props);
     },
 
     // TODO is this correct ? should this use componentWillUpdate instead ?
     componentDidUpdate: function (oldProps) {
-      var didUpdate = updateObject(this.state.chart, oldProps, this.props);
+      var didUpdate = updateObject(this.chart, oldProps, this.props);
       var keepState = this.props.keepState;
       // TODO make this faster
       if (didUpdate) {
         if (keepState) {
-          this.state.chart.validateNow(true);
+          this.chart.validateNow(true);
         } else {
-          this.state.chart.validateData();
+          this.chart.validateData();
         }
       }
     },
 
     componentWillUnmount: function () {
-      if (this.state.chart) {
-        this.state.chart.clear();
+      if (this.chart) {
+        this.chart.clear();
       }
     },
 
     render: function () {
+      var _this = this;
       return React.createElement("div", {
         id: this.state.id,
+        ref: function ref(_ref) {
+          return _this.ref = _ref;
+        },
         style: {
           width: this.props.width || "100%",
           height: this.props.height || "100%"
