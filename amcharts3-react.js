@@ -272,9 +272,13 @@ console.warn("Version 2.0 is outdated. Please upgrade to version 3.0:\nhttps://g
       // TODO make this faster
       if (didUpdate) {
         if (keepState) {
-          this.chart.validateNow(true);
+          if (this.chart) {
+            this.chart.validateNow(true);
+          }
         } else {
-          this.chart.validateData();
+          if (this.chart) {
+            this.chart.validateData();
+          }
         }
       }
     },
