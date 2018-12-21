@@ -272,7 +272,7 @@
         if (didUpdate) {
           if (keepState) {
             if (this.chart) {
-              this.chart.validateNow(true);
+              setTimeout(() => this.chart.validateNow(true), 0);
             }
           } else {
             if (this.chart) {
