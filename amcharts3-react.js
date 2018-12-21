@@ -268,20 +268,22 @@
       var didUpdate = updateObject(this.chart, oldProps, this.props);
       var keepState = this.props.keepState;
       // TODO make this faster
-      try {
-        if (didUpdate) {
-          if (keepState) {
-            if (this.chart) {
-              setTimeout(() => this.chart.validateNow(true), 0);
-            }
-          } else {
-            if (this.chart) {
-              this.chart.validateData();
-            }
+      if (didUpdate) {
+        if (keepState) {
+          if (this.chart) {
+            setTimeout(() => {
+              try {
+                this.chart.validateNow(true);
+              } catch(e) {
+                console.error(e);
+              }
+            }, 0);
+          }
+        } else {
+          if (this.chart) {
+            this.chart.validateData();
           }
         }
-      } catch(e) {
-        console.error(e);
       }
     },
 
