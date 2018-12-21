@@ -270,22 +270,30 @@ console.warn("Version 2.0 is outdated. Please upgrade to version 3.0:\nhttps://g
       var didUpdate = updateObject(this.chart, oldProps, this.props);
       var keepState = this.props.keepState;
       // TODO make this faster
-      if (didUpdate) {
-        if (keepState) {
-          if (this.chart) {
-            this.chart.validateNow(true);
-          }
-        } else {
-          if (this.chart) {
-            this.chart.validateData();
+      try {
+        if (didUpdate) {
+          if (keepState) {
+            if (this.chart) {
+              this.chart.validateNow(true);
+            }
+          } else {
+            if (this.chart) {
+              this.chart.validateData();
+            }
           }
         }
+      } catch(e) {
+        console.error(e);
       }
     },
 
     componentWillUnmount: function () {
-      if (this.chart) {
-        this.chart.clear();
+      try {
+        if (this.chart) {
+          this.chart.clear();
+        } catch(e){
+          console.error(e);
+        }
       }
     },
 
