@@ -268,28 +268,22 @@
       var didUpdate = updateObject(this.chart, oldProps, this.props);
       var keepState = this.props.keepState;
       // TODO make this faster
-      if (didUpdate) {
-        if (keepState) {
-          if (this.chart) {
-            setTimeout(() => {
-              try {
-                this.chart.validateNow(true);
-              } catch(e) {
-                console.error(e);
-              }
-            }, 0);
-          }
-        } else {
-          if (this.chart) {
-            this.chart.validateData();
+      try {
+        if (didUpdate && this.chart && this.chart.chartCreated) {
+          if (keepState) {
+             this.chart.validateNow(true);
+          } else {
+              this.chart.validateData();
           }
         }
+      } catch(e) {
+        console.error(e);
       }
     },
 
     componentWillUnmount: function () {
       try {
-        if (this.chart) {
+        if (this.chart && this.chart.chartCreated) {
           this.chart.clear();
         }
       } catch(e){
