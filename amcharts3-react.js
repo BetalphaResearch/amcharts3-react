@@ -269,8 +269,8 @@
       var keepState = this.props.keepState;
       // TODO make this faster
       try {
-        if (didUpdate && this.chart && this.chart.chartCreated) {
-          if (keepState) {
+        if (didUpdate) {
+          if (keepState && this.chart && this.chart.chartCreated) {
              this.chart.validateNow(true);
           } else {
               this.chart.validateData();
